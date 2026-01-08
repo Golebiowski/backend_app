@@ -1,0 +1,33 @@
+<div style="font-family: sans-serif; text-align: center; padding: 20px;">
+  <h1>{{ powitanie }}</h1>
+  <p>Kliknąłeś przycisk już <strong>{{ licznik }}</strong> razy.</p>
+  
+  <button (click)="zwieksz()" style="padding: 10px 20px; cursor: pointer;">
+    Dodaj +1
+  </button>
+</div>
+<div class="todo-card">
+  <h2>Moja Lista Zadań</h2>
+
+  <p class="counter-text">
+      Pozostało do zrobienia: <strong> {{ pozostaloZadan }} </strong>
+  </p>
+
+  <div class="input-group">
+    <input #noweZadanie type="text" placeholder="Co masz do zrobienia?">
+    <button (click)="dodajZadanie(noweZadanie)">Dodaj</button>
+  </div>
+
+  <ul>
+    @for (zadanie of listaZadan; track zadanie; let i = $index) {
+      <li class="task-item">
+        <span [class.completed]="zadanie.gotowe" (click)="przelaczStatus(i)" >
+          {{ zadanie.tekst }}
+        </span>
+        <button class="delete-btn" (click)="usunZadanie(i)">usuń</button>  
+      </li>
+    } @empty {
+      <li>Wszystkie zadania wykonane! 🎉</li>
+    }
+  </ul>
+</div>
