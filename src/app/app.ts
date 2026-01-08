@@ -14,6 +14,23 @@ export class App {
   powitanie = 'Witaj w nowym Angularze';
   licznik = 0;
 
+  /**
+   *
+   */
+  constructor() { 
+    // 1. ODCZYT: Próbujemy pobrać dane z LocalStorage przy starcie
+    const dane = localStorage.getItem('moje_zadania');
+    if(dane)
+    {
+      this.listaZadan = JSON.parse(dane);
+    }
+  }
+  // Funkcja pomocnicza do zapisu
+  zapiszWLocalStorage() {
+    // 2. ZAPIS: Zamieniamy listę na tekst (JSON) i wkładamy do pudełka 'moje_zadania'
+    localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan));
+  } 
+
   zwieksz() {
     this.licznik++;
   }
@@ -29,6 +46,7 @@ export class App {
     if (pole.value.trim() !== '') {
       this.listaZadan.push({ tekst: pole.value, gotowe : false});
       pole.value = ''; // Czyścimy pole po dodaniu
+      this.zapiszWLocalStorage(); // Zapisz po dodaniu
     }
   }
 
