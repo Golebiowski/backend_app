@@ -9,6 +9,12 @@
 <div class="todo-card">
   <h2>Moja Lista Zadań</h2>
 
+  <div class="filter-buttons">
+    <button [class.active]="aktualnyFiltr === 'wszystkie'" (click)="ustawFiltr('wszystkie')">Wszystkie</button>
+    <button [class.active]="aktualnyFiltr === 'aktywne'" (click)="ustawFiltr('aktywne')">Do zrobienia</button>
+    <button [class.active]="aktualnyFiltr === 'zakonczone'" (click)="ustawFiltr('zakonczone')">Zrobione</button>
+  </div>
+
   <p class="counter-text">
       Pozostało do zrobienia: <strong> {{ pozostaloZadan }} </strong>
   </p>
@@ -19,8 +25,8 @@
   </div>
 
   <ul>
-    @for (zadanie of listaZadan; track zadanie; let i = $index) {
-      <li class="task-item">
+    @for (zadanie of przefiltrowaneZadania; track zadanie; let i = $index) {
+      <li class="task-item" @listaAnimacja>
         <span [class.completed]="zadanie.gotowe" (click)="przelaczStatus(i)" >
           {{ zadanie.tekst }}
         </span>

@@ -1,12 +1,24 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common'; // Dodajemy to dla stylów dynamicznych
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-root',
   imports: [RouterOutlet, CommonModule],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
+  animations : [
+    trigger('listaAnimacja', [
+      transition(':enter', [
+      style({ opacity: 0, tansform: 'translateX(-20)' }), //Start: niewidoczne i przesunięte
+      animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })) // Koniec: widoczne
+    ]),
+    transition(':leave', [
+      animate('200ms ease-in', style({opacity: 0, transform: 'scale(0.95)'}))
+    ])
+    ])
+  ]
 })
 export class App {
   protected readonly title = signal('front_app');
@@ -14,9 +26,6 @@ export class App {
   powitanie = 'Witaj w nowym Angularze';
   licznik = 0;
 
-  /**
-   *
-   */
   constructor() { 
     // 1. ODCZYT: Próbujemy pobrać dane z LocalStorage przy starcie
     const dane = localStorage.getItem('moje_zadania');
@@ -36,32 +45,51 @@ export class App {
   }
 
   // 1. Tworzymy tablicę z początkowymi zadaniami
-  listaZadan = [
+  listaZadan = signal([
     { tekst: 'Nauczyć się podstaw Angulara', gotowe: false }, 
     { tekst: 'Zrobić pierwszą stronę', gotowe: true}
-  ];
+  ]);
+
+  aktualnyFiltr = signal<'wszystkie' | 'aktywne' | 'zakonczone'>('wszystkie');
 
   // 2. Funkcja dodająca nowe zadanie do listy
   dodajZadanie(pole: HTMLInputElement) {
     if (pole.value.trim() !== '') {
-      this.listaZadan.push({ tekst: pole.value, gotowe : false});
+      // .update() pozwala nam zmodyfikować obecną wartość sygnału
+      this.listaZadan.update(staraLista => [...staraLista, { tekst: pole.value, gotowe : false}]);
       pole.value = ''; // Czyścimy pole po dodaniu
       this.zapiszWLocalStorage(); // Zapisz po dodaniu
     }
   }
 
-  usunZadanie(indeks: number) {
+  usunZadanie(zadanieDoUsuniecia : any) {
   // .splice(od_którego_miejsca, ile_elementów_usunąć)
-  this.listaZadan.splice(indeks, 1);
+  this.listaZadan.update(lista => lista.filter(z => z !== zadanieDoUsuniecia));
   }
 
-  przelaczStatus(indeks: number) {
-    this.listaZadan[indeks].gotowe = !this.listaZadan[indeks].gotowe
+  przelaczStatus(zadanie: any) {
+    this.listaZadan.update(lista => 
+      lista.map(z => z = zadanie ? { ...z, gotowe: !z.gotowe} : z)
+    )
   }
 
-  get pozostaloZadan() {
-    // .filter tworzy nową listę tylko z nieukończonymi zadaniami
-    // .length zwraca ich liczbę 
-    return this.listaZadan.filter(z => !z.gotowe).length;
+  pozostaloZadan = computed(() => { 
+    const zadania = this.listaZadan();
+
+    return zadania.filter(z => !z.gotowe).length;
+  })
+
+  przefiltrowaneZadania = computed(() => {
+    const zadania = this.listaZadan();
+    const filtr = this.aktualnyFiltr();
+
+    if (filtr === 'aktywne') return zadania.filter(z => !z.gotowe);
+    if (filtr === 'zakonczone') return zadania.filter(z => z.gotowe);  
+    return zadania; 
+  });
+
+  //funkcja zmiany filtra
+  ustawFiltr(nowyFiltr: 'wszystkie' | 'aktywne' | 'zakonczone'){
+      this.aktualnyFiltr.set(nowyFiltr);
   }
 }

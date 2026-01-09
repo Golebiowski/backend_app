@@ -78,3 +78,23 @@ span {
   cursor: pointer; /* Kursor rączki, żeby było wiadomo, że można kliknąć tekst */
   flex: 1;
 }
+
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.filter-buttons button {
+  background-color: #eee;
+  color: #333;
+  font-size: 12px;
+  border: 1px solid #ccc;
+}
+
+.filter-buttons button.active {
+  background-color: #dd0031;
+  color: white;
+  border-color: #a80025;
+}
