@@ -8,32 +8,46 @@
 </div>
 <div class="todo-card">
   <h2>Moja Lista Zadań</h2>
-
-  <div class="filter-buttons">
-    <button [class.active]="aktualnyFiltr === 'wszystkie'" (click)="ustawFiltr('wszystkie')">Wszystkie</button>
-    <button [class.active]="aktualnyFiltr === 'aktywne'" (click)="ustawFiltr('aktywne')">Do zrobienia</button>
-    <button [class.active]="aktualnyFiltr === 'zakonczone'" (click)="ustawFiltr('zakonczone')">Zrobione</button>
-  </div>
-
+  
   <p class="counter-text">
-      Pozostało do zrobienia: <strong> {{ pozostaloZadan }} </strong>
+      Pozostało do zrobienia: <strong> {{ pozostaloZadan() }} </strong> <br>
+      Pozostało do zrobienia: <strong> {{ wykonanychZadan() }} </strong> <br> 
+      Pozostało do zrobienia: <strong> {{ wszystkichZadan() }} </strong>
   </p>
+<div class="filter-buttons">
+    <button 
+      [class.active]="aktualnyFiltr() === 'wszystkie'" 
+      (click)="ustawFiltr('wszystkie')">
+      Wszystkie
+    </button>
 
+    <button 
+      [class.active]="aktualnyFiltr() === 'aktywne'" 
+      (click)="ustawFiltr('aktywne')">
+      Do zrobienia
+    </button>
+
+    <button 
+      [class.active]="aktualnyFiltr() === 'zakonczone'" 
+      (click)="ustawFiltr('zakonczone')">
+      Zrobione
+    </button>
+</div>
   <div class="input-group">
     <input #noweZadanie type="text" placeholder="Co masz do zrobienia?">
     <button (click)="dodajZadanie(noweZadanie)">Dodaj</button>
   </div>
 
   <ul>
-    @for (zadanie of przefiltrowaneZadania; track zadanie; let i = $index) {
+    <button [class.active]="aktualnyFiltr() === 'wszystkie'" (click)="ustawFiltr('wszystkie')">Wszystkie</button>
+
+    @for (zadanie of przefiltrowaneZadania(); track zadanie.tekst) {
       <li class="task-item" @listaAnimacja>
-        <span [class.completed]="zadanie.gotowe" (click)="przelaczStatus(i)" >
+        <span [class.completed]="zadanie.gotowe" (click)="przelaczStatus(zadanie)" >
           {{ zadanie.tekst }}
         </span>
-        <button class="delete-btn" (click)="usunZadanie(i)">usuń</button>  
+        <button class="delete-btn" (click)="usunZadanie(zadanie)">usuń</button>  
       </li>
-    } @empty {
-      <li>Wszystkie zadania wykonane! 🎉</li>
-    }
+    }  
   </ul>
 </div>

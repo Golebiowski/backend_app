@@ -31,14 +31,14 @@ export class App {
     const dane = localStorage.getItem('moje_zadania');
     if(dane)
     {
-      this.listaZadan = JSON.parse(dane);
+      this.listaZadan.set(JSON.parse(dane));
     }
   }
   // Funkcja pomocnicza do zapisu
   zapiszWLocalStorage() {
-    // 2. ZAPIS: Zamieniamy listę na tekst (JSON) i wkładamy do pudełka 'moje_zadania'
-    localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan));
-  } 
+  // Pamiętaj o () przy listaZadan!
+  localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan()));
+  }
 
   zwieksz() {
     this.licznik++;
@@ -69,14 +69,27 @@ export class App {
 
   przelaczStatus(zadanie: any) {
     this.listaZadan.update(lista => 
-      lista.map(z => z = zadanie ? { ...z, gotowe: !z.gotowe} : z)
+      lista.map(z => z === zadanie ? { ...z, gotowe: !z.gotowe} : z)
     )
+    this.zapiszWLocalStorage();
   }
 
   pozostaloZadan = computed(() => { 
     const zadania = this.listaZadan();
 
     return zadania.filter(z => !z.gotowe).length;
+  })
+
+  wykonanychZadan = computed(() => { 
+    const zadania = this.listaZadan();
+
+    return zadania.filter(z => z.gotowe).length;
+  })
+
+  wszystkichZadan = computed(() => { 
+    const zadania = this.listaZadan();
+
+    return zadania.length;
   })
 
   przefiltrowaneZadania = computed(() => {
