@@ -2,6 +2,7 @@ import { Component, signal, computed } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common'; // Dodajemy to dla stylów dynamicznych
 import { trigger, transition, style, animate } from '@angular/animations';
+import { effect } from '@angular/core'; // dodaj do importów
 
 @Component({
   selector: 'app-root',
@@ -33,12 +34,18 @@ export class App {
     {
       this.listaZadan.set(JSON.parse(dane));
     }
-  }
+
+    effect(() => { 
+    localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan()));
+    console.log('Zapisano zmiany w LocalStorage');
+  });
+  } 
+
   // Funkcja pomocnicza do zapisu
-  zapiszWLocalStorage() {
+  //zapiszWLocalStorage() {
   // Pamiętaj o () przy listaZadan!
-  localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan()));
-  }
+  //localStorage.setItem('moje_zadania', JSON.stringify(this.listaZadan()));
+  //}
 
   zwieksz() {
     this.licznik++;
@@ -58,7 +65,7 @@ export class App {
       // .update() pozwala nam zmodyfikować obecną wartość sygnału
       this.listaZadan.update(staraLista => [...staraLista, { tekst: pole.value, gotowe : false}]);
       pole.value = ''; // Czyścimy pole po dodaniu
-      this.zapiszWLocalStorage(); // Zapisz po dodaniu
+      //this.zapiszWLocalStorage(); // Zapisz po dodaniu - usunięte po dodaniu effect()
     }
   }
 
@@ -71,7 +78,7 @@ export class App {
     this.listaZadan.update(lista => 
       lista.map(z => z === zadanie ? { ...z, gotowe: !z.gotowe} : z)
     )
-    this.zapiszWLocalStorage();
+    //this.zapiszWLocalStorage(); - usunięte po dodaniu effect()
   }
 
   pozostaloZadan = computed(() => { 
