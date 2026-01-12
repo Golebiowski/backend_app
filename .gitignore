@@ -1,0 +1,39 @@
+# Zależności
+node_modules/
+
+# Build / dist
+dist/
+out-tsc/
+
+# Angular cache
+.angular/
+
+# Logi
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE / edytory
+.vscode/
+.idea/
+*.sw?
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# System
+.DS_Store
+Thumbs.db
+
+# Testy / coverage
+coverage/
+
+# Env (jeśli trzymasz lokalne)
+.env
+.env.*
+
+# Temporary files
+tmp/
+temp/
