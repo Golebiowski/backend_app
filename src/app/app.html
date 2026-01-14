@@ -18,25 +18,27 @@
     <button 
       [class.active]="aktualnyFiltr() === 'wszystkie'" 
       (click)="ustawFiltr('wszystkie')">
-      Wszystkie
+      Wszystkie ({{ liczbaWszystkich() }})
     </button>
 
     <button 
       [class.active]="aktualnyFiltr() === 'aktywne'" 
       (click)="ustawFiltr('aktywne')">
-      Do zrobienia
+      Do zrobienia ({{ liczbaAktywnych() }})
     </button>
 
     <button 
       [class.active]="aktualnyFiltr() === 'zakonczone'" 
       (click)="ustawFiltr('zakonczone')">
-      Zrobione
+      Zrobione ({{ liczbaZakonczonych() }})
     </button>
 </div>
   <div class="input-group">
     <input #noweZadanie type="text" placeholder="Co masz do zrobienia?">
     <button (click)="dodajZadanie(noweZadanie)">Dodaj</button>
   </div>
+
+  
 
   <ul>
     <button [class.active]="aktualnyFiltr() === 'wszystkie'" (click)="ustawFiltr('wszystkie')">Wszystkie</button>
@@ -50,4 +52,10 @@
       </li>
     }  
   </ul>
+
+  @if (powinienPokazacCzyszczenie()) {
+  <button class="clear-btn" (click)='wyczyscUkonczone()'>
+    Usuń ukończone zadania
+  </button>
+}
 </div>

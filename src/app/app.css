@@ -98,3 +98,22 @@ span {
   color: white;
   border-color: #a80025;
 }
+
+.filter-buttons button {
+  font-weight: 500;
+  /* Twoje obecne style */
+}
+
+/* Możesz też dodać taki bajer: */
+.filter-buttons button::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width .3s;
+}
+
+.filter-buttons button.active::after {
+  width: 100%;
+}

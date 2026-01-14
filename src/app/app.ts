@@ -16,8 +16,15 @@ import { effect } from '@angular/core'; // dodaj do importów
       animate('300ms ease-out', style({ opacity: 1, transform: 'translateX(0)' })) // Koniec: widoczne
     ]),
     transition(':leave', [
-      animate('200ms ease-in', style({opacity: 0, transform: 'scale(0.95)'}))
-    ])
+      animate('200ms ease-in', style({
+        opacity: 0, 
+        transform: 'translateX(50px)',
+        height: '0px',
+        marginBottom: '0px',
+        paddingTop: '0px',
+        paddingBottom: '0px'
+        }))
+      ])
     ])
   ]
 })
@@ -112,4 +119,23 @@ export class App {
   ustawFiltr(nowyFiltr: 'wszystkie' | 'aktywne' | 'zakonczone'){
       this.aktualnyFiltr.set(nowyFiltr);
   }
+
+  wyczyscUkonczone(){
+    this.listaZadan.update(lista => lista.filter(z => !z.gotowe));
+  }
+
+  maUkonczone = computed(() => { return this.listaZadan().some(z => z.gotowe) });
+
+  powinienPokazacCzyszczenie = computed(() => {
+    const saUkonczone = this.maUkonczone();
+    const filtr = this.aktualnyFiltr();
+
+    return saUkonczone && filtr !== 'aktywne';
+  })
+
+  liczbaWszystkich = computed(() => this.listaZadan().length);
+
+  liczbaAktywnych = computed(() => this.listaZadan().filter(z => z.gotowe).length);
+
+  liczbaZakonczonych = computed(() => this.listaZadan().filter(z => !z.gotowe).length );
 }
