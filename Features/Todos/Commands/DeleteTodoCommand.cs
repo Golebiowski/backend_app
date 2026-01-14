@@ -13,7 +13,7 @@ namespace backend_app.Features.Todos.Commands
         {
             var itemToRemove = FakeDataBase.Items.FirstOrDefault(t => t.Id == request.id);
 
-            if ( itemToRemove != null)
+            if ( itemToRemove == null)
             {
                 return Task.FromResult(false);
             }
