@@ -1,5 +1,6 @@
-﻿using MediatR;
+﻿using backend_app.Data;
 using backend_app.Models;
+using MediatR;
 
 namespace backend_app.Features.Todos.Commands
 {
@@ -9,17 +10,27 @@ namespace backend_app.Features.Todos.Commands
     // Handler
     public class DeleteTodoCommandHandler : IRequestHandler<DeleteTodoCommand, bool>
     {
-        public Task<bool> Handle(DeleteTodoCommand request, CancellationToken cancellationToken)
-        {
-            var itemToRemove = FakeDataBase.Items.FirstOrDefault(t => t.Id == request.id);
+        private readonly AppDbContext _context;
 
-            if ( itemToRemove == null)
+        public DeleteTodoCommandHandler(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<bool> Handle(DeleteTodoCommand request, CancellationToken cancellationToken)
+        {
+            // Szukamy encji w bazie
+            var item = await _context.Todos.FindAsync(new object[] { request.id }, cancellationToken);
+
+            if ( item == null)
             {
-                return Task.FromResult(false);
+                return false;
             }
 
-            FakeDataBase.Items.Remove(itemToRemove);
-            return Task.FromResult(true);
+            _context.Todos.Remove(item);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return true;
         }
     }
 }

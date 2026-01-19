@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using backend_app.Features.Todos.Commands;
 using backend_app.Features.Todos.Queries;
-using backend_app.Features.Todos;
+using backend_app.Enums;
 
 namespace backend_app.Controllers
 {
@@ -25,10 +25,9 @@ namespace backend_app.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<TodoDto>>> GetAll()
         {
-            var todos = await _mediator.Send(new GetTodosQuery());
-            return Ok(todos);
+            return Ok(await _mediator.Send(new GetTodosQuery()));
         }
 
         [HttpDelete("{id}")] // np. api/todo/1
@@ -57,6 +56,17 @@ namespace backend_app.Controllers
                 return NotFound($"Zadanie o ID {id} nie istnieje.");
             }
 
+            return NoContent(); //zwraca 204
+        }
+
+        [HttpPatch("{id}/priority")]
+        public async Task<IActionResult> UpdatePriority(int id, [FromBody] Priorities newPriority)
+        { 
+            var result = await _mediator.Send(new ChangePriorityCommand(id, newPriority));
+            if (!result)
+            {
+                return NotFound($"Zadanie o ID {id} nie istnieje.");
+            }
             return NoContent(); //zwraca 204
         }
     }

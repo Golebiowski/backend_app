@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using backend_app.Models;
+using backend_app.Data;
+using FluentAssertions;
 
 namespace backend_app.Features.Todos.Commands
 {
@@ -7,15 +9,23 @@ namespace backend_app.Features.Todos.Commands
 
     public class CreateTodoCommandHandler : IRequestHandler<CreateTodoCommand, int>
     {
-        public Task<int> Handle(CreateTodoCommand request, CancellationToken cancellationToken)
+        private readonly AppDbContext _context;
+
+        public CreateTodoCommandHandler(AppDbContext context)
         {
-            var newTodo = new TodoItem
-            {
-                Id = FakeDataBase.Items.Count + 1,
-                Title = request.Title
-            };
-            FakeDataBase.Items.Add(newTodo);
-            return Task.FromResult(newTodo.Id);
+            _context = context;
+        }
+
+        public async Task<int> Handle(CreateTodoCommand request, CancellationToken cancellationToken)
+        {
+            // Wywołujemy "mądry" konstruktor DDD. 
+            // Jeśli Title będzie pusty, konstruktor wyrzuci błąd (wyjątek) tutaj.
+            var toDoItem = new TodoItem(request.Title);
+
+            _context.Todos.Add(toDoItem);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return toDoItem.Id;
         }
     }
 }
