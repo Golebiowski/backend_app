@@ -60,9 +60,10 @@ namespace backend_app.Controllers
         }
 
         [HttpPatch("{id}/priority")]
-        public async Task<IActionResult> UpdatePriority(int id, [FromBody] Priorities newPriority)
+        public async Task<IActionResult> ChangePriority(int id, [FromBody] Priorities newPriority)
         { 
             var result = await _mediator.Send(new ChangePriorityCommand(id, newPriority));
+            
             if (!result)
             {
                 return NotFound($"Zadanie o ID {id} nie istnieje.");

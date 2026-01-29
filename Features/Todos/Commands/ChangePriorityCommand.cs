@@ -10,10 +10,7 @@ namespace backend_app.Features.Todos.Commands
     {
         private readonly AppDbContext _context;
 
-        public ChangePriorityCommandHandler(AppDbContext context)
-        {
-            _context = context;
-        }
+        public ChangePriorityCommandHandler(AppDbContext context) =>  _context = context; 
 
         public async Task<bool> Handle(ChangePriorityCommand request, CancellationToken cancellationToken)
         {

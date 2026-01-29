@@ -2,10 +2,11 @@
 using backend_app.Models;
 using backend_app.Data;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend_app.Features.Todos.Commands
 {
-    public record CreateTodoCommand(string Title) : IRequest<int>;
+    public record CreateTodoCommand(string Title, int CategoryId) : IRequest<int>;
 
     public class CreateTodoCommandHandler : IRequestHandler<CreateTodoCommand, int>
     {
@@ -18,9 +19,16 @@ namespace backend_app.Features.Todos.Commands
 
         public async Task<int> Handle(CreateTodoCommand request, CancellationToken cancellationToken)
         {
+            var categoryExists = await _context.Categories.AnyAsync(c => c.Id == request.CategoryId, cancellationToken);
+
+            if(!categoryExists)
+            {
+                throw new InvalidOperationException($"Category with Id {request.CategoryId} does not exist.");
+            }   
+
             // Wywołujemy "mądry" konstruktor DDD. 
             // Jeśli Title będzie pusty, konstruktor wyrzuci błąd (wyjątek) tutaj.
-            var toDoItem = new TodoItem(request.Title);
+            var toDoItem = new TodoItem(request.Title, request.CategoryId);
 
             _context.Todos.Add(toDoItem);
             await _context.SaveChangesAsync(cancellationToken);

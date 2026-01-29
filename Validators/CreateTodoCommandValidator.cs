@@ -3,9 +3,9 @@ using FluentValidation;
 
 namespace backend_app.Validators
 {
-    public class CreateTodoValidator : AbstractValidator<CreateTodoCommand>
+    public class CreateTodoCommandValidator : AbstractValidator<CreateTodoCommand>
     {
-        public CreateTodoValidator()
+        public CreateTodoCommandValidator()
         {
             RuleFor(x => x.Title)
                 .NotEmpty().WithMessage("Tytuł nie może być pusty.")

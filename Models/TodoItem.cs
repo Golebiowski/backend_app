@@ -7,13 +7,16 @@ namespace backend_app.Models
         public int Id { get; private set; }
         public string Title { get; private set; } = string.Empty;
         public bool IsCompleted { get; private set; }
-        public DateTime CreateAt { get; private set; }
+        public DateTime CreatedAt { get; private set; }
         public Priorities Priority { get; private set; }
+
+        public int CategoryId { get; private set; } // Foreign key
+        public virtual Category Category { get; private set; } // Nawigacyjne właściwość
 
         // prywatny kontrultor dla EntityFramework - techniczny  
         private TodoItem() { }
 
-        public TodoItem(string title)
+        public TodoItem(string title, int category)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -21,8 +24,10 @@ namespace backend_app.Models
             }
 
             Title = title;
+            CategoryId = category;
             IsCompleted = false;
-            CreateAt = DateTime.UtcNow;
+            CreatedAt = DateTime.UtcNow;
+            Priority = Priorities.Medium;
         }
 
         public void UpdateTitle(string newTitle)
