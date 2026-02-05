@@ -27,7 +27,7 @@ namespace backend_app.Features.Todos.Commands
             // Zamiast: item.Title = request.Title; (Anemiczne)
             // Robimy: (DDD - Delegujemy logikę do modelu)
             item.UpdateTitle(request.Title);
-            item.MarkAsCompleted();
+            //item.MarkAsCompleted();
 
             await _context.SaveChangesAsync(cancellationToken);
 

@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using backend_app.Features.Todos.Commands;
 using backend_app.Features.Todos.Queries;
 using backend_app.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace backend_app.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TodoController : Controller
@@ -61,14 +63,28 @@ namespace backend_app.Controllers
 
         [HttpPatch("{id}/priority")]
         public async Task<IActionResult> ChangePriority(int id, [FromBody] Priorities newPriority)
-        { 
+        {
             var result = await _mediator.Send(new ChangePriorityCommand(id, newPriority));
-            
+
             if (!result)
             {
                 return NotFound($"Zadanie o ID {id} nie istnieje.");
             }
             return NoContent(); //zwraca 204
+        }
+         
+        [HttpPatch("{id}/complete")]
+        public async Task<IActionResult> MarkAsCompleted(int id)
+        {
+            var result = await _mediator.Send(new CompleteTodoCommand(id));
+            return result ? NoContent() : NotFound();
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpGet("global-status")]
+        public IActionResult GetGlobalStatus()
+        {
+            return Ok("");
         }
     }
 }
