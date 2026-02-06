@@ -53,12 +53,19 @@ builder.Services.AddMediatR(cfg => {
 });
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 10, // Spróbuje 10 razy
+            maxRetryDelay: TimeSpan.FromSeconds(5), // Co 5 sekund
+            errorNumbersToAdd: null)
+    ));
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
@@ -72,50 +79,57 @@ builder.Services.AddScoped(typeof(ICurrentUserService), typeof(CurrentUserServic
 
 var app = builder.Build();
 
-app.UseExceptionHandler(); 
-app.UseHttpsRedirection();
+// 1. Obs³uga b³êdów na samym pocz¹tku
+app.UseExceptionHandler();
 
-app.UseRouting();
-
-app.UseAuthentication();  
-app.UseAuthorization();  
-
-app.MapGroup("/identity").MapIdentityApi<IdentityUser>();
-
-app.MapControllers();
-
-// Configure the HTTP request pipeline.
+// 2. Swagger - najlepiej mieæ go przed routinguem, ¿eby zawsze by³ dostêpny
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    /*app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "backend_app");
-        c.RoutePrefix = string.Empty; // Serve Swagger UI at "/"
-    });*/
     app.UseSwaggerUI();
 }
 
+app.UseHttpsRedirection();
+
+// 3. Routing musi byæ przed Auth i Mapowaniem
+app.UseRouting();
+
+// 4. Autentykacja ZAWSZE przed Autoryzacj¹
+app.UseAuthentication();
+app.UseAuthorization();
+
+// 5. Mapowanie tras
+app.MapGroup("/identity").MapIdentityApi<IdentityUser>();
+app.MapControllers();
+
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-
-    // 1. Tworzymy rolê jeœli nie istnieje
+    var services = scope.ServiceProvider;
+     
+    var context = services.GetRequiredService<AppDbContext>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+     
+    await context.Database.EnsureCreatedAsync(); 
+     
     if (!await roleManager.RoleExistsAsync("Admin"))
     {
         await roleManager.CreateAsync(new IdentityRole("Admin"));
     }
-
-    // 2. Tworzymy u¿ytkownika Admina
+     
     var adminEmail = "admin@todo.pl";
     var adminUser = await userManager.FindByEmailAsync(adminEmail);
 
     if (adminUser == null)
     {
         adminUser = new IdentityUser { UserName = adminEmail, Email = adminEmail };
-        await userManager.CreateAsync(adminUser, "Admin123!"); // U¿yj silnego has³a!
-        await userManager.AddToRoleAsync(adminUser, "Admin");
+          
+        var result = await userManager.CreateAsync(adminUser, builder.Configuration["AdminConfig:Password"] ?? "Admin123!");
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(adminUser, "Admin");
+        }
     }
 }
 

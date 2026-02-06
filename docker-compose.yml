@@ -1,0 +1,26 @@
+version: '3.4'
+
+services:
+  backend_app:
+    container_name: backend
+    image: ${DOCKER_REGISTRY-}backendapp
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Server=sql_dbs;Database=TodoDb;User Id=${DB_USER};Password=Zaza_123_Todo!;TrustServerCertificate=True
+    depends_on:
+      - sql_dbs
+
+  sql_dbs:
+    container_name: sql_dbs
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      MSSQL_SA_PASSWORD: "Zaza_123_Todo!"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "${DB_PORT}:1433"
