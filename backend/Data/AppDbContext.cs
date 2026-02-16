@@ -26,13 +26,13 @@ namespace backend_app.Data
 
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            var userId = _currentUserService.UserId;
+            var userName = _currentUserService.UserName;
 
             foreach (var entry in ChangeTracker.Entries<TodoItem>())
             {
                 if (entry.State == EntityState.Added)
                 {
-                    entry.Entity.CreatedBy = userId;
+                    entry.Entity.CreatedBy = userName;
                 }
             }
 
@@ -63,6 +63,11 @@ namespace backend_app.Data
             modelBuilder.Entity<TodoItem>()
                 .HasQueryFilter(t => _currentUserService.isAdmin 
                                 || (t.CreatedBy == _currentUserService.UserId));
+
+            modelBuilder.Entity<TodoItem>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.CreatedBy);
 
             modelBuilder.Entity<Category>().HasData(
                 new { Id = 1, Name = "Praca" },

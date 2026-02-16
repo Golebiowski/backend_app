@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend_app.Features.Todos.Commands
 {
-    public record CreateTodoCommand(string Title, int CategoryId) : IRequest<int>;
+    public record CreateTodoCommand(string Title, int CategoryId, string? UserId) : IRequest<int>;
 
     public class CreateTodoCommandHandler : IRequestHandler<CreateTodoCommand, int>
     {
@@ -28,7 +28,7 @@ namespace backend_app.Features.Todos.Commands
 
             // Wywołujemy "mądry" konstruktor DDD. 
             // Jeśli Title będzie pusty, konstruktor wyrzuci błąd (wyjątek) tutaj.
-            var toDoItem = new TodoItem(request.Title, request.CategoryId);
+            var toDoItem = new TodoItem(request.Title, request.CategoryId, request.UserId);
 
             _context.Todos.Add(toDoItem);
             await _context.SaveChangesAsync(cancellationToken);

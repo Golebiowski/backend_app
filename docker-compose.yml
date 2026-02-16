@@ -12,7 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__DefaultConnection=Server=sql_dbs;Database=TodoDb;User Id=${DB_USER};Password={DB_PASSWORD};TrustServerCertificate=True
+      - ConnectionStrings__DefaultConnection=Server=sql_dbs;Database=TodoDb;User Id=${DB_USER};Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True
     depends_on:
       - sql_dbs
 

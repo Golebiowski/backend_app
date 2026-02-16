@@ -26,6 +26,17 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>()
 builder.Services.AddAuthentication();
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options => {
+    options.AddDefaultPolicy(policy => {
+        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+    });
+});
+
+builder.Services.ConfigureApplicationCookie(options => {
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+
 //Password Configuration
 builder.Services.Configure<IdentityOptions>(options =>
 { 
@@ -89,12 +100,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 // 3. Routing musi byæ przed Auth i Mapowaniem
 app.UseRouting();
 
 // 4. Autentykacja ZAWSZE przed Autoryzacj¹
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 

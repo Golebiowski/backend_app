@@ -1,6 +1,7 @@
 ﻿using backend_app.Common;
 using backend_app.Enums;
 using backend_app.Features.Todos;
+using Microsoft.AspNetCore.Identity;
 
 namespace backend_app.Models
 {
@@ -13,13 +14,14 @@ namespace backend_app.Models
         public Priorities Priority { get; private set; }
         public string? CreatedBy { get; set; } 
 
+        public IdentityUser? User { get; set; }
         public int CategoryId { get; private set; } // Foreign key
         public virtual Category Category { get; private set; } // Nawigacyjne właściwość
 
         // prywatny kontrultor dla EntityFramework - techniczny  
         private TodoItem() { }
 
-        public TodoItem(string title, int category)
+        public TodoItem(string title, int category, string? userId)
         {
             if (string.IsNullOrWhiteSpace(title))
             {
@@ -29,7 +31,8 @@ namespace backend_app.Models
             Title = title;
             CategoryId = category;
             IsCompleted = false;
-            CreatedAt = DateTime.UtcNow;
+            CreatedBy = userId;
+            CreatedAt = DateTime.UtcNow; 
             Priority = Priorities.Medium;
         }
 
